@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+# Decorator class for Error handling within scripts so that useful error messages are generated when problem sets arise
 class ConvertExceptions(object):
     func = None
     def __init__(self, exceptions, replacement=None):
