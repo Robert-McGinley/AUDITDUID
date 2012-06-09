@@ -1,5 +1,5 @@
 ArcSight Use Case: Mapping Auditd UID to Username
-#####
+###
 The Linux C2 auditing tool auditd event log type outputs integer UID's which are not useful in the context of correlation across thousands of Linux systems. From a correlation perspective and an Identity View perspective and in an effort to detect standard Cyber intrusion sets and Insider Threat activities on Linux systems, it becomes highly useful to convert integer UID's to string usernames for monitoring purposes, leveraging ArcSight map file functionality to get one attribute and reset said attribute with the desired attribute. Furthermore, this use case when run from a more aggressive crontab schedule can serve as a rudiment ability to detect in realtive real time the addition or subtraction of a user account/s from a 
 Linux server system.
 
