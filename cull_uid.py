@@ -97,5 +97,4 @@ chk_file(file_name)
 #remote_system = "username@remote_servername"
 #remote_dir = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
 #local_dir = "/current/working/directory"
-# Command string rsync -avz -e ssh /source/dir/test.txt user@remote_server:/dest/dir/test.txt
 #rsync_ssh(remote_system, remote_dir, local_dir)
