@@ -71,12 +71,10 @@ def rsync_ssh(local_dir, remote_system, remote_dir):
 # If the script is rerun via Tivoli remove any previous 
 # Map file in the current working directory
 map_file_name = "map.3.properties"
-
 rm_map(map_file_name)
 
 # Cull usernames and UID's from passwd file
 passwd_file = "/etc/passwd"
-
 cull_uid(passwd_file)
 
 # Move the map file product from current working director to the smart connector directory
@@ -85,7 +83,6 @@ cull_uid(passwd_file)
 src_path = "map.3.properties"
 dst_path = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
 file_name = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
-
 chk_file(file_name)
 
 # Method for remote update of smart connector map file
@@ -93,6 +90,7 @@ chk_file(file_name)
 # We will simply utilize the operating system tier ssh client and rsync facility to move map file to the remote smart connector
 # over writing the map file of the remote smart connector. Warning this will over write your remote map file if implemented without
 # forethought 
+
 ##########
 #remote_system = "username@remote_servername"
 #remote_dir = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
