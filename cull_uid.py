@@ -7,9 +7,10 @@ Author: Justin Jessup
 '''
 ###########
 '''
-Disclaimer: All software provided as is. All software covered under the GPL license and free for public redistribution. If unintended 
-consequences occur due to utilization of this software, user bears the resultant outcome. The rule of thumb is to test and validate properly
-all solutions prior to implementation within a production environment, all solutions should be subject to public scruitiny, and peer review.
+Disclaimer: All software provided as is. All software covered under the GPL license and free for public redistribution. 
+If unintended consequences occur due to utilization of this software, user bears the resultant outcome. 
+The rule of thumb is to test and validate properly all solutions prior to implementation within a production environment.
+All solutions should be subject to public scruitiny, and peer review.
 '''
 ##########
 
