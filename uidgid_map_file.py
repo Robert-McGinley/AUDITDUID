@@ -12,6 +12,8 @@ All solutions should be subject to public scrutiny, and peer review.
 '''
 ##########
 
+__author__ = "Justin Jessup & Adam Reber"
+
 import os, shutil, glob, datetime
 
 def list_files(path_name):
