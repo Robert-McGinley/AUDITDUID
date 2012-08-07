@@ -1,98 +1,104 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
-###########
 '''
-Date June 8, 2012
-Author: Justin Jessup
+Date Aug 7, 2012
 '''
 ###########
 '''
-Disclaimer: All software provided as is. All software covered under the GPL license and free for public redistribution. 
-If unintended consequences occur due to utilization of this software, user bears the resultant outcome. 
+Disclaimer: All software provided as is. All software covered under the GPL license and free for public redistribution.
+If unintended consequences occur due to utilization of this software, user bears the resultant outcome.
 The rule of thumb is to test and validate properly all solutions prior to implementation within a production environment.
 All solutions should be subject to public scrutiny, and peer review.
 '''
 ##########
 
-import os, subprocess, shutil
-from error_handle import ConvertExceptions
+__author__ = "Justin Jessup & Adam Reber"
 
-# Cull the UID integer and the username string from the /etc/passwd file 
-@ConvertExceptions(StandardError, 0)
-def cull_uid(file_name):
+import os, shutil, glob, datetime
+
+def list_files(path_name):
+    """
+    function to list files in a directory path
+    """
+    glob_paths = glob.glob(path_name)
+    for path in glob_paths:
+        yield path
+
+def head_file(file_name, line_count):
+    """
+    Python implementation of Linux/Unix head utility - output first N lines of file
+    """
+    return [s for (i, s) in enumerate(open(file_name)) if i < line_count]
+
+def which_mapfile(path_name):
+    """
+    Determine the next map file we can write to - if map.0.properties exits - else default map.0.properties
+    """
+    file_list = []
+    map_filter = "map.*.properties"
+    for file_name in list_files(os.path.join(path_name, map_filter)):
+        file_list.append(int(file_name.split('.')[1]))
+    if not file_list:
+        return "map.0.properties"
+    else:
+        file_num = str(max(file_list))
+        file_name = "map." + file_num + ".properties"
+        
+	line = head_file(os.path.join(path_name, file_name), 1)[0]
+	if 'UID' in line:
+            os.remove((os.path.join(path_name,file_name)))
+            return file_name
+        else:
+            return "map." + str(max(file_list) + 1) + ".properties"
+
+def cull_uid(map_file, file_name):
+    """
+    cull/pull username and UID from /etc/passwd
+    getter ArcSight schema field deviceCustomNumber3
+    setter ArcSight schema field sourceuserName
+    write output to identified free map.*.properties file
+    """
     a1 = open(file_name, 'r')
     user = [ (i.split(':')[0],i.split(':')[2]) for i in a1 if "/nologin" not in i ]
-    f = open("map.3.properties","a")
-    f.write("event.deviceCustomNumber3,set.event.sourceUserId\n")
-    [ f.write("%s,%s\n" % (i[1],i[0])) for i in user ]
-
-# Generic function to move the map file product to the smart connector map file location
-@ConvertExceptions(StandardError, 0)
-def mov_map(src_path, dst_path):
-    shutil.copy(src_path, dst_path)
-
-# Generic function to zero out a file so we are starting with a clean slate with every cyclic execution of the script 
-@ConvertExceptions(StandardError, 0)
-def null_file(file_path):
-    f = open(file_path, 'w')
+    f = open(map_file,"w")
+    date_time_one = (str(datetime.datetime.now()).split(' ')[0])
+    date_time_two = (str(datetime.datetime.now())).split(' ')[1].replace(':','-').split('.')[0]
+    f.write("# UID mapfile " +date_time_one+ '-' +date_time_two + '\n')
+    f.write("event.deviceCustomNumber3,set.event.sourceUserName\n")
+    [ f.write("%s,%s\n" % (i[1],i[0])) for i in user if "sudcoadm" not in i]
     f.close()
-
-# Generic function to check that a file exists - if the file does exist - then execute the mv_map function 
-@ConvertExceptions(StandardError, 0)  
-def chk_file(file_name):
-    check_file = os.path.isfile(file_name)
-    if(check_file == True):
-        null_file(file_name)
-        mov_map(src_path, dst_path)
-    else: 
-        mov_map(src_path, dst_path)
-
-# Generic function - given in our use case the customer utilized Tivoli for change management control - 
-# There for if a re-deployment of the Tivoli package ocurred we needed a function to ensure we starting from 
-# a clean slate again. Adjust according to your use case requirements. 
-@ConvertExceptions(StandardError, 0)
-def rm_map(file_name):
-    check_file = os.path.isfile(file_name)
-    if(check_file == True):
-        os.remove(file_name)
+    a1.close()
+    
+def mov_map(src_path, dst_path):
+    """
+    new map file is created within current working directory
+    move the new map file to the correct $ARCSIGHT_CONNECTOR_HOME/map $PATH location
+    """
+    if os.path.isfile(dst_path):
+        os.remove(dst_path)
+    
+    if os.path.isfile(src_path):
+        try:
+            shutil.copy(src_path, dst_path)
+        except IOError:
+            print "ERROR: cannot write file to destination."
     else:
-        pass
+        print "ERROR: cannot open source file."
+    
+def main():
+    """
+    If the script is rerun via Tivoli remove any previous
+    Map file in the current working directory
+    """
+    path_name = "/opt/app/arcsight/sys_pipe/current/user/agent/map/"
+    file_name = which_mapfile(path_name)
+    """
+    Cull usernames and UID's from passwd file
+    """
+    cull_uid(file_name, "/etc/passwd")
+    dst_path = "/opt/app/arcsight/sys_pipe/current/user/agent/map/" + file_name
+    mov_map(file_name, dst_path)
 
-# Very simple facility to utilize the operating system tier SSH and rsync facilities for use case where the map file is generated 
-# on the remote server, and you need to move the mapfile product to the remote smart connector system, specifically updating
-# the map file for the remote smart connector in question. 
-@ConvertExceptions(StandardError, 0)
-def rsync_ssh(local_dir, remote_system, remote_dir):
-    which_process = subprocess.Popen("rsync -avz -e ssh" + " " +local_dir+ " " +remote_system+ ":" +remote_dir, shell=True, stdout=subprocess.PIPE)
-    which_process.stdout.close()
-    which_process.wait()
-    return 
-
-# If the script is rerun via Tivoli remove any previous 
-# Map file in the current working directory
-map_file_name = "map.3.properties"
-rm_map(map_file_name)
-
-# Cull usernames and UID's from passwd file
-passwd_file = "/etc/passwd"
-cull_uid(passwd_file)
-
-# Move the map file product from current working director to the smart connector directory
-# Note this function should be utilized if the smart connector is native to the Linux system
-# Otherwise comment out this section if the map file product needs to be moved to a remote smart connector     
-src_path = "map.3.properties"
-dst_path = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
-file_name = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
-chk_file(file_name)
-
-# Method for remote update of smart connector map file
-# Uncomment this section if the map file of the ArcSight smart connector to be updated resides upon a remote collection system. 
-# We will simply utilize the operating system tier ssh client and rsync facility to move map file to the remote smart connector
-# over writing the map file of the remote smart connector. Warning this will over write your remote map file if implemented without
-# forethought 
-
-##########
-#remote_system = "username@remote_servername"
-#remote_dir = "/opt/app/arcsight/sys_pipe/current/user/agent/map/map.3.properties"
-#local_dir = "/current/working/directory"
-#rsync_ssh(remote_system, remote_dir, local_dir)
+# Execution Main Function
+if __name__ == '__main__':
+    main()
