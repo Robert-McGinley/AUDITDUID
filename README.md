@@ -19,9 +19,9 @@ Linux server system.
 2.) The script simply culls all UID's, that possess a system $SHELL, and their corresponding username from the /etc/passwd file, populating a mapfile. Where the getter is the ArcSight schema field event.deviceCustomNumber3 and the setter is the ArcSight schema field event.sourceUserId.
 Resultant map file entries will appear as such.
 
+UID,Usename
 0,root
-550,someuser
-560,anotheruser
+
 
 3.) Within the ArcSight Console the auditd data type will then appear with ArcSight schema field event.sourceUserId populated with the username that generated the auditd event log entry. This becomes very useful for Identity View user tracking, or user access tracking in general on Linux based systems.
 
