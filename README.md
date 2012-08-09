@@ -1,4 +1,4 @@
-#*ArcSight Use Case:* 
+#*ArcSight Use Case* 
 
 #*Mapping Auditd UID to Username*
 
