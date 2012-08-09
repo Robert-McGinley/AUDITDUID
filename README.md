@@ -34,11 +34,11 @@ UID,Usename
 
 #*Tools Utilized in Testing and Validation of this Use Case*
 
-ArcSight 5.2 Patch 1
-Current Version ArcSight Linux Syspipe Smart Connector
-Python 2.7.3
-OpenSSH Client & Server
-Rsync
+ArcSight 5.2 Patch 1&
+Current Version ArcSight Linux Syspipe Smart Connector&
+Python 2.7.3&
+OpenSSH Client & Server&
+Rsync&
 Linux crontab
 
 #*Tested On*
